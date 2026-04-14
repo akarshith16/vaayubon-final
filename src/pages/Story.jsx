@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion';
+import storySetting from '../assets/img/story_setting.png';
+import storyMission from '../assets/img/story_mission.png';
 
 const revealUp = {
   hidden: { opacity: 0, y: 50 },
@@ -19,9 +21,15 @@ export default function Story() {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'minmax(400px, 1fr) 1fr', gap: '6rem', margin: '4rem 0' }}>
              
-             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={revealUp}>
+             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={revealUp} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 <div className="image-placeholder" style={{ width: '100%', aspectRatio: '4/5', position: 'relative' }}>
-                  <img src="/src/assets/img/story.png" style={{ objectFit: 'cover', width: '100%', height: '100%', filter: 'grayscale(20%) sepia(30%)', position: 'absolute', inset: 0 }} alt="Nandyal village" />
+                  <img src={storySetting} style={{ objectFit: 'cover', width: '100%', height: '100%', filter: 'grayscale(20%) sepia(30%)', position: 'absolute', inset: 0 }} alt="Nandyal village setting" />
+                  <div style={{ position: 'absolute', top: '1rem', left: '1rem', color: 'rgba(255,255,255,0.9)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '2px', background: 'rgba(0,0,0,0.5)', padding: '0.5rem 1rem' }}>THE SETTING</div>
+                </div>
+                
+                <div className="image-placeholder" style={{ width: '100%', aspectRatio: '16/9', position: 'relative' }}>
+                  <img src={storyMission} style={{ objectFit: 'cover', width: '100%', height: '100%', filter: 'grayscale(20%) sepia(30%)', position: 'absolute', inset: 0 }} alt="Farmer mission theme" />
+                  <div style={{ position: 'absolute', bottom: '1rem', right: '1rem', color: 'rgba(255,255,255,0.9)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '2px', background: 'rgba(0,0,0,0.5)', padding: '0.5rem 1rem' }}>THE MISSION</div>
                 </div>
              </motion.div>
 

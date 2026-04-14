@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion';
+import homeProblem from '../assets/img/home_problem.png';
+import homeSolution from '../assets/img/home_solution.png';
 
 const revealUp = {
   hidden: { opacity: 0, y: 50 },
@@ -29,10 +31,10 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Home Image */}
+        {/* The Problem Image */}
         <div style={{ width: '100%', height: '50vh', position: 'relative' }}>
-             <img src="/src/assets/img/home.png" style={{ objectFit: 'cover', width: '100%', height: '100%', filter: 'grayscale(20%) sepia(30%)' }} alt="Agricultural field" />
-             <div style={{ position: 'absolute', bottom: '2rem', left: '4vw', color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '2px' }}>SCROLL DOWN</div>
+             <img src={homeProblem} style={{ objectFit: 'cover', width: '100%', height: '100%', filter: 'grayscale(20%) sepia(30%)' }} alt="Agricultural field burning" />
+             <div style={{ position: 'absolute', bottom: '2rem', left: '4vw', color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '2px' }}>THE PROBLEM</div>
         </div>
       </section>
 
@@ -47,6 +49,14 @@ export default function Home() {
             <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)', marginTop: '1rem' }}>
               This destroys a zero-value waste but simultaneously destroys an asset. Annually, 100 million tonnes of residue are burned in India, destroying feedstock that represents over <strong style={{color: 'var(--text-main)'}}>$13.6 billion</strong> in potential carbon credit value.
             </p>
+          </motion.div>
+
+          {/* The Solution Image injected seamlessly */}
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={revealUp}>
+            <div style={{ width: '100%', aspectRatio: '16/9', position: 'relative', margin: '2rem 0' }}>
+               <img src={homeSolution} style={{ objectFit: 'cover', width: '100%', height: '100%', filter: 'grayscale(20%) sepia(30%)' }} alt="Hands holding biochar" />
+               <div style={{ position: 'absolute', bottom: '1rem', right: '1rem', color: 'rgba(255,255,255,0.9)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '2px', background: 'rgba(0,0,0,0.5)', padding: '0.5rem 1rem' }}>THE SOLUTION</div>
+            </div>
           </motion.div>
 
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={revealUp}>
@@ -77,11 +87,11 @@ export default function Home() {
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={revealUp} transition={{ delay: 0.2 }} style={{ paddingRight: '2rem', borderRight: '1px solid rgba(0,0,0,0.1)' }}>
               <div style={{ fontSize: '3rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.5rem' }}>32%</div>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}><strong>Net Margin:</strong> Yielded by our robust unit economics.</p>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}><strong>Net Margin:</strong> Yielded by our unit economics.</p>
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={revealUp} transition={{ delay: 0.3 }}>
               <div style={{ fontSize: '3rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.5rem' }}>120+</div>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}><strong>Pilot Traction:</strong> Active pilot farmers currently enrolled.</p>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}><strong>Pilot Traction:</strong> Active pilot farmers globally.</p>
             </motion.div>
           </div>
         </div>

@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion';
+import techProcess from '../assets/img/tech_process.png';
+import techMachinery from '../assets/img/tech_machinery.png';
 
 const revealUp = {
   hidden: { opacity: 0, y: 50 },
@@ -20,7 +22,8 @@ export default function Technology() {
         </div>
 
         <div style={{ width: '100%', height: '40vh', position: 'relative', margin: '4rem 0' }}>
-             <img src="/src/assets/img/tech.png" style={{ objectFit: 'cover', width: '100%', height: '100%', filter: 'grayscale(20%) sepia(30%)' }} alt="Pyrolysis Technology" />
+             <img src={techProcess} style={{ objectFit: 'cover', width: '100%', height: '100%', filter: 'grayscale(20%) sepia(30%)' }} alt="Pyrolysis glowing internal view" />
+             <div style={{ position: 'absolute', bottom: '1rem', left: '4vw', color: 'rgba(255,255,255,0.9)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '2px', background: 'rgba(0,0,0,0.5)', padding: '0.5rem 1rem' }}>THE PROCESS</div>
         </div>
 
         <div className="container" style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) 2fr', gap: '4rem', paddingBottom: '6rem' }}>
@@ -34,6 +37,11 @@ export default function Technology() {
              <p style={{ color: 'var(--text-muted)', fontSize: '1rem', marginTop: '1rem', fontWeight: 600 }}>
                Our innovation lies in the end-to-end supply chain integration, stretching from farmer logistics to digital Monitoring, Reporting, and Verification (MRV).
              </p>
+
+             <div style={{ width: '100%', aspectRatio: '1/1', position: 'relative', marginTop: '3rem' }}>
+                <img src={techMachinery} style={{ objectFit: 'cover', width: '100%', height: '100%', filter: 'grayscale(20%) sepia(30%)' }} alt="Continuous pyrolysis machinery" />
+                <div style={{ position: 'absolute', top: '1rem', left: '1rem', color: 'rgba(255,255,255,0.9)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '2px', background: 'rgba(0,0,0,0.5)', padding: '0.5rem 1rem' }}>THE MACHINERY</div>
+             </div>
           </motion.div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4rem' }}>

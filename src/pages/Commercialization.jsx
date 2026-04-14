@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion';
+import commFarmer from '../assets/img/comm_farmer.png';
+import commSoil from '../assets/img/comm_soil.png';
 
 const revealUp = {
   hidden: { opacity: 0, y: 50 },
@@ -19,7 +21,8 @@ export default function Commercialization() {
           </motion.div>
           
           <div style={{ width: '100%', height: '50vh', position: 'relative', margin: '2rem 0 6rem 0' }}>
-             <img src="/src/assets/img/market.png" style={{ objectFit: 'cover', width: '100%', height: '100%', filter: 'grayscale(20%) sepia(30%)' }} alt="Smallholder farmer hands" />
+             <img src={commFarmer} style={{ objectFit: 'cover', width: '100%', height: '100%', filter: 'grayscale(20%) sepia(30%)', objectPosition: 'center 30%' }} alt="Indian farmer shoveling biochar" />
+             <div style={{ position: 'absolute', bottom: '1rem', right: '4vw', color: 'rgba(255,255,255,0.9)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '2px', background: 'rgba(0,0,0,0.5)', padding: '0.5rem 1rem' }}>FARMER IMPACT</div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '4rem', paddingBottom: '4rem' }}>
@@ -45,6 +48,12 @@ export default function Commercialization() {
             </motion.div>
 
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={revealUp} style={{ paddingLeft: '2rem', borderLeft: '1px solid rgba(0,0,0,0.1)' }}>
+               
+               <div style={{ width: '100%', aspectRatio: '16/9', position: 'relative', marginBottom: '3rem' }}>
+                  <img src={commSoil} style={{ objectFit: 'cover', width: '100%', height: '100%', filter: 'grayscale(20%) sepia(30%)' }} alt="Terra preta rich soil" />
+                  <div style={{ position: 'absolute', top: '1rem', left: '1rem', color: 'rgba(255,255,255,0.9)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '2px', background: 'rgba(0,0,0,0.5)', padding: '0.5rem 1rem' }}>SOIL HEALTH</div>
+               </div>
+
                <h2 style={{ fontSize: '2.5rem', marginBottom: '2rem' }}>Rigorous Certification</h2>
                <p style={{ color: 'var(--text-muted)' }}>We are pursuing dual certification through the world's leading registries to ensure institutional grade credibility.</p>
                
