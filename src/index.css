@@ -243,3 +243,96 @@ footer { border-top: 1px solid var(--line); padding: 6rem 0 3rem; position: rela
   .grid-2, .grid-2-tight { grid-template-columns: 1fr; }
   section { padding: 6rem 0; }
 }
+
+/* ================= scrollytelling chapters ================= */
+.chapter { position: relative; }
+.chapter-pin {
+  position: sticky; top: 0; height: 100svh; overflow: hidden;
+  display: flex; align-items: flex-end;
+}
+.chapter-bg { position: absolute; inset: 0; }
+.chapter-bg img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.chapter-dim {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(8,7,6,0.92) 0%, rgba(8,7,6,0.35) 45%, rgba(8,7,6,0.55) 100%);
+}
+.chapter-vignette {
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(8,7,6,0.55) 100%);
+}
+.chapter-title {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  text-align: center; padding: 0 6vw; gap: 1.6rem;
+}
+.chapter-title h2 {
+  font-size: clamp(2.2rem, 5.4vw, 5.2rem);
+  max-width: 18ch; letter-spacing: -0.03em; line-height: 1.05;
+  text-shadow: 0 4px 60px rgba(8,7,6,0.8);
+}
+.chapter-caption {
+  position: absolute; bottom: 9vh; max-width: 460px;
+  padding: 1.8rem 2rem;
+  background: rgba(8,7,6,0.55);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--ember);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.chapter-caption.left { left: 5vw; }
+.chapter-caption.right { right: 5vw; }
+.chapter-caption h3 { font-size: 1.4rem; margin-bottom: 0.7rem; letter-spacing: -0.01em; }
+.chapter-caption p { font-size: 1rem; color: var(--muted); max-width: none; }
+.cap-index {
+  font-family: var(--font-mono); font-size: 0.64rem; letter-spacing: 0.18em;
+  color: var(--ember); display: block; margin-bottom: 0.9rem;
+}
+
+/* ================= map journey ================= */
+.map-journey .chapter-pin { background: var(--bg); }
+.map-frame { position: absolute; inset: 0; }
+.map-frame svg { width: 100%; height: 100%; display: block; }
+.map-overlay-top {
+  position: absolute; top: 14vh; left: 5vw; right: 5vw;
+  display: flex; justify-content: space-between; align-items: flex-start;
+  pointer-events: none;
+}
+.map-stage {
+  position: absolute; right: 0; top: 0;
+  font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.22em;
+  color: var(--ink); text-align: right;
+  padding: 0.55rem 0.9rem; border: 1px solid var(--line);
+  background: rgba(8,7,6,0.5); backdrop-filter: blur(10px);
+}
+.map-cap { bottom: 11vh; }
+.map-marker {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.map-marker .dot {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--ember); box-shadow: 0 0 18px rgba(255,122,61,0.9);
+}
+.map-marker .ring {
+  position: absolute; top: 50%; left: 50%;
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 1px solid var(--ember);
+  animation: ring-pulse 2.2s ease-out infinite;
+}
+@keyframes ring-pulse {
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
+  100% { transform: translate(-50%, -50%) scale(7); opacity: 0; }
+}
+
+@media (max-width: 720px) {
+  .chapter-caption { left: 4vw !important; right: 4vw !important; max-width: none; bottom: 6vh; }
+  .chapter-title h2 { font-size: clamp(1.8rem, 8vw, 2.6rem); }
+  .map-overlay-top { top: 11vh; }
+}
+
+/* ---------- logo ---------- */
+.wordmark { display: flex; align-items: center; }
+.logo-svg { height: 34px; width: auto; display: block; }

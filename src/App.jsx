@@ -4,15 +4,41 @@ import {
   useVelocity, useMotionValue, animate,
 } from 'framer-motion';
 import './index.css';
+import { WORLD, INDIA, INDIA_STATES, AP, AP_DISTRICTS, ANANTAPUR, FOCUS } from './mapdata';
 
 import heroImg from './assets/hero.png';
 import homeProblem from './assets/img/home_problem.png';
 import homeSolution from './assets/img/home_solution.png';
-import techProcess from './assets/img/tech_process.png';
+import homeField from './assets/img/home_field.png';
+import techPyrolysis from './assets/img/tech_pyrolysis.png';
 import techMachinery from './assets/img/tech_machinery.png';
 import commFarmer from './assets/img/comm_farmer.png';
 import commSoil from './assets/img/comm_soil.png';
 import storySetting from './assets/img/story_setting.png';
+
+/* ---------------- reliable scroll progress ----------------
+   useScroll's offset-based section progress proved unreliable in
+   some browsers, so progress is computed directly from layout. */
+function useScrollProgress(ref, calc) {
+  const mv = useMotionValue(0);
+  useEffect(() => {
+    const on = () => {
+      const el = ref.current; if (!el) return;
+      const r = el.getBoundingClientRect();
+      const p = calc(r, window.innerHeight);
+      mv.set(Math.min(1, Math.max(0, p)));
+    };
+    window.addEventListener('scroll', on, { passive: true });
+    window.addEventListener('resize', on);
+    on();
+    return () => { window.removeEventListener('scroll', on); window.removeEventListener('resize', on); };
+  }, []);
+  return mv;
+}
+/* pinned section: 0 when its top hits the viewport top, 1 when its end stops scrolling */
+const pinProgress = (r, vh) => -r.top / (r.height - vh);
+/* free element: 0 entering from below, 1 fully scrolled past */
+const viewProgress = (r, vh) => (vh - r.top) / (vh + r.height);
 
 /* ---------------- motion presets ---------------- */
 const EASE = [0.16, 1, 0.3, 1];
@@ -80,7 +106,7 @@ function CountUp({ to, prefix = '', suffix = '', decimals = 0 }) {
 /* ---------------- parallax image ---------------- */
 function ParallaxImage({ src, alt, tag, ratio = '16/8', range = 14, children }) {
   const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
+  const scrollYProgress = useScrollProgress(ref, viewProgress);
   const y = useTransform(scrollYProgress, [0, 1], [`-${range}%`, `${range}%`]);
   return (
     <div className="img-frame" ref={ref} style={{ aspectRatio: ratio }}>
@@ -91,37 +117,268 @@ function ParallaxImage({ src, alt, tag, ratio = '16/8', range = 14, children }) 
   );
 }
 
-/* ---------------- scroll-scrubbed temperature readout ---------------- */
-function PyrolysisImage() {
+/* ================================================================
+   SCROLLYTELLING CHAPTER
+   Pinned full-screen scene. The background slowly zooms while the
+   chapter title, then each caption card, fades in and out in
+   sequence as the visitor scrubs through the chapter.
+   ================================================================ */
+function Chapter({ id, images, kicker, title, captions, align = 'left' }) {
   const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
-  const y = useTransform(scrollYProgress, [0, 1], ['-18%', '18%']);
-  const tempRef = useRef(null);
-  useEffect(() => {
-    return scrollYProgress.on('change', (p) => {
-      if (tempRef.current) {
-        const t = Math.round(400 + Math.min(Math.max(p, 0), 1) * 300);
-        tempRef.current.textContent = t + '°C';
-      }
-    });
-  }, [scrollYProgress]);
+  const scrollYProgress = useScrollProgress(ref, pinProgress);
+
+  const imgs = Array.isArray(images) ? images : [images];
+  const scale = useTransform(scrollYProgress, [0, 1], [1.06, 1.3]);
+  const dim = useTransform(scrollYProgress, [0, 0.25, 1], [0.45, 0.62, 0.7]);
+
+  const titleOp = useTransform(scrollYProgress, [0.02, 0.09, 0.2, 0.28], [0, 1, 1, 0]);
+  const titleY = useTransform(scrollYProgress, [0.02, 0.09], [40, 0]);
+
+  const start = 0.3, end = 0.96;
+  const span = (end - start) / captions.length;
+
+  /* each caption gets its own slice of the scroll */
+  const capRanges = captions.map((_, i) => {
+    const a = start + i * span;
+    return [a, a + span * 0.22, a + span * 0.78, a + span];
+  });
+
+  /* background crossfade synced to each caption's entrance */
+  const imgRanges = imgs.map((_, i) => {
+    if (imgs.length === 1 || i === 0) return null;
+    const a = capRanges[Math.min(i, capRanges.length - 1)][0];
+    return [Math.max(0, a - 0.04), Math.min(1, a + 0.06)];
+  });
+
   return (
-    <div className="img-frame" ref={ref} style={{ aspectRatio: '21/8' }}>
-      <motion.img src={techProcess} alt="Pyrolysis glowing internal view" style={{ y, scale: 1.3, willChange: 'transform' }} />
-      <div className="img-tag">The process &middot; low-oxygen thermal decomposition</div>
-      <div className="temp-readout">
-        <span className="temp-label">Core temp</span>
-        <span ref={tempRef} className="temp-value">400&deg;C</span>
+    <section id={id} ref={ref} className="chapter" style={{ height: `${(captions.length + 2) * 100}vh` }}>
+      <div className="chapter-pin">
+        {imgs.map((src, i) => (
+          <ChapterBg key={i} src={src} scale={scale} progress={scrollYProgress} range={imgRanges[i]} />
+        ))}
+        <motion.div className="chapter-dim" style={{ opacity: dim }} />
+        <div className="chapter-vignette" />
+
+        <motion.div className="chapter-title" style={{ opacity: titleOp, y: titleY }}>
+          <span className="label">{kicker}</span>
+          <h2>{title}</h2>
+        </motion.div>
+
+        {captions.map((cap, i) => (
+          <ChapterCaption key={i} progress={scrollYProgress} range={capRanges[i]} align={align}
+            index={i + 1} total={captions.length} {...cap} />
+        ))}
       </div>
-    </div>
+    </section>
+  );
+}
+
+function ChapterBg({ src, scale, progress, range }) {
+  const opacity = range ? useTransform(progress, range, [0, 1]) : 1;
+  return (
+    <motion.div className="chapter-bg" style={{ opacity }}>
+      <motion.img src={src} alt="" style={{ scale, willChange: 'transform' }} />
+    </motion.div>
+  );
+}
+
+function ChapterCaption({ progress, range, head, body, align, index, total }) {
+  const opacity = useTransform(progress, range, [0, 1, 1, 0]);
+  const y = useTransform(progress, range, [44, 0, 0, -30]);
+  return (
+    <motion.div className={`chapter-caption ${align}`} style={{ opacity, y }}>
+      <span className="cap-index">{String(index).padStart(2, '0')} / {String(total).padStart(2, '0')}</span>
+      {head && <h3>{head}</h3>}
+      <p>{body}</p>
+    </motion.div>
+  );
+}
+
+/* ================================================================
+   MAP JOURNEY
+   One continuous camera move through a single Mercator space:
+   the world, then India, then Andhra Pradesh, then Anantapur.
+   Scroll scrubs the flight; captions narrate each stage.
+   ================================================================ */
+const VB = FOCUS.world;
+const VCX = VB[0] + VB[2] / 2;
+const VCY = VB[1] + VB[3] / 2;
+
+function cam(f, pad) {
+  const s = Math.min(VB[2] / f[2], VB[3] / f[3]) * pad;
+  return { s, cx: f[0] + f[2] / 2, cy: f[1] + f[3] / 2 };
+}
+const CAM = [
+  { s: 1, cx: VCX, cy: VCY },          /* world  */
+  cam(FOCUS.india, 0.6),               /* india  */
+  cam(FOCUS.ap, 0.58),                 /* AP     */
+  cam(FOCUS.anantapur, 0.5),           /* dist.  */
+];
+const CAM_P = [0.05, 0.24, 0.36, 0.52, 0.62, 0.8];
+const CAM_I = [0, 1, 1, 2, 2, 3];
+
+const MAP_CAPTIONS = [
+  {
+    p: [0.02, 0.06, 0.16, 0.22],
+    head: 'It starts with the ground',
+    body: 'Every credit we issue begins on a real farm, in real soil. Scroll to fly to where the work happens.',
+  },
+  {
+    p: [0.26, 0.3, 0.38, 0.44],
+    head: 'India',
+    body: '100 million tonnes of crop residue are burned here every year. The largest unpriced carbon stream on Earth.',
+  },
+  {
+    p: [0.54, 0.58, 0.64, 0.7],
+    head: 'Andhra Pradesh',
+    body: 'The Rayalaseema belt. Groundnut and rice country: drought prone, residue rich, and ready for a market.',
+  },
+  {
+    p: [0.82, 0.88, 0.96, 1],
+    head: 'Anantapur',
+    body: 'Ground zero for Vaayubon. Here, farm waste becomes permanent carbon removal, and fires become income.',
+  },
+];
+
+const STAGE_TAGS = [
+  { p: [0.02, 0.05, 0.2, 0.26], t: 'THE EARTH' },
+  { p: [0.27, 0.31, 0.4, 0.47], t: 'INDIA' },
+  { p: [0.54, 0.58, 0.66, 0.72], t: 'ANDHRA PRADESH' },
+  { p: [0.8, 0.85, 1, 1], t: 'ANANTAPUR DISTRICT · 14.68° N, 77.60° E' },
+];
+
+function MapCaption({ progress, cap }) {
+  const opacity = useTransform(progress, cap.p, [0, 1, 1, 0]);
+  const y = useTransform(progress, cap.p, [44, 0, 0, -30]);
+  return (
+    <motion.div className="chapter-caption left map-cap" style={{ opacity, y }}>
+      <h3>{cap.head}</h3>
+      <p>{cap.body}</p>
+    </motion.div>
+  );
+}
+
+function StageTag({ progress, tag }) {
+  const opacity = useTransform(progress, tag.p, [0, 1, 1, 0]);
+  return <motion.div className="map-stage" style={{ opacity }}>{tag.t}</motion.div>;
+}
+
+function MapJourney() {
+  const ref = useRef(null);
+  const gRef = useRef(null);
+  const scrollYProgress = useScrollProgress(ref, pinProgress);
+  const p = useSpring(scrollYProgress, { stiffness: 70, damping: 22, restDelta: 0.0001 });
+
+  /* camera: interpolate zoom in log space for an even flight */
+  const logS = useTransform(p, CAM_P, CAM_I.map((i) => Math.log(CAM[i].s)));
+  const s = useTransform(logS, Math.exp);
+  const cx = useTransform(p, CAM_P, CAM_I.map((i) => CAM[i].cx));
+  const cy = useTransform(p, CAM_P, CAM_I.map((i) => CAM[i].cy));
+
+  /* drive the SVG transform attribute directly: CSS transforms on SVG
+     groups have inconsistent origin handling across browsers */
+  useEffect(() => {
+    const apply = () => {
+      const el = gRef.current; if (!el) return;
+      const sv = s.get(), a = cx.get(), b = cy.get();
+      el.setAttribute('transform', `translate(${VCX - sv * a} ${VCY - sv * b}) scale(${sv})`);
+    };
+    const subs = [s, cx, cy].map((v) => v.on('change', apply));
+    apply();
+    return () => subs.forEach((u) => u());
+  }, [s, cx, cy]);
+
+  /* layers */
+  const worldOp = useTransform(p, [0, 0.2, 0.34, 0.5], [0.9, 0.9, 0.16, 0]);
+  const indiaOp = useTransform(p, [0.1, 0.24, 0.5, 0.66], [0, 1, 1, 0]);
+  const statesOp = useTransform(p, [0.22, 0.32, 0.5, 0.6], [0, 0.55, 0.55, 0]);
+  const apOp = useTransform(p, [0.4, 0.54], [0, 1]);
+  const distOp = useTransform(p, [0.55, 0.66], [0, 0.65]);
+  const anantaOp = useTransform(p, [0.64, 0.78], [0, 1]);
+  const markerOp = useTransform(scrollYProgress, [0.8, 0.87], [0, 1]);
+  const gridOp = useTransform(p, [0, 0.18, 0.3], [0.5, 0.5, 0]);
+
+  return (
+    <section id="origin" ref={ref} className="chapter map-journey" style={{ height: '680vh' }}>
+      <div className="chapter-pin">
+        <div className="map-frame">
+          <svg viewBox={`${VB[0]} ${VB[1]} ${VB[2]} ${VB[3]}`} preserveAspectRatio="xMidYMid slice">
+            <g ref={gRef}>
+              {/* graticule */}
+              <motion.g style={{ opacity: gridOp }}>
+                {Array.from({ length: 11 }, (_, i) => (
+                  <line key={'v' + i} x1={i * 100} y1={VB[1]} x2={i * 100} y2={VB[1] + VB[3]}
+                    stroke="rgba(242,237,228,0.05)" vectorEffect="non-scaling-stroke" />
+                ))}
+                {Array.from({ length: 7 }, (_, i) => (
+                  <line key={'h' + i} x1="0" y1={VB[1] + i * 100} x2="1000" y2={VB[1] + i * 100}
+                    stroke="rgba(242,237,228,0.05)" vectorEffect="non-scaling-stroke" />
+                ))}
+              </motion.g>
+
+              {/* the world */}
+              <motion.g style={{ opacity: worldOp }}>
+                {WORLD.map((d, i) => (
+                  <path key={i} d={d} fill="rgba(242,237,228,0.05)"
+                    stroke="rgba(242,237,228,0.28)" strokeWidth="0.7" vectorEffect="non-scaling-stroke" />
+                ))}
+              </motion.g>
+
+              {/* india */}
+              <motion.g style={{ opacity: indiaOp }}>
+                <path d={INDIA} fill="rgba(255,122,61,0.13)" stroke="#ff7a3d"
+                  strokeWidth="1.1" vectorEffect="non-scaling-stroke" />
+              </motion.g>
+              <motion.g style={{ opacity: statesOp }}>
+                {INDIA_STATES.map((st) => (
+                  <path key={st.n} d={st.d} fill="none"
+                    stroke="rgba(242,237,228,0.3)" strokeWidth="0.6" vectorEffect="non-scaling-stroke" />
+                ))}
+              </motion.g>
+
+              {/* andhra pradesh */}
+              <motion.g style={{ opacity: apOp }}>
+                <path d={AP} fill="rgba(255,122,61,0.1)" stroke="#ff7a3d"
+                  strokeWidth="1.2" vectorEffect="non-scaling-stroke" />
+              </motion.g>
+              <motion.g style={{ opacity: distOp }}>
+                {AP_DISTRICTS.map((d) => (
+                  <path key={d.n} d={d.d} fill="none"
+                    stroke="rgba(242,237,228,0.3)" strokeWidth="0.6" vectorEffect="non-scaling-stroke" />
+                ))}
+              </motion.g>
+
+              {/* anantapur */}
+              <motion.g style={{ opacity: anantaOp }}>
+                <path d={ANANTAPUR} fill="rgba(255,122,61,0.32)" stroke="#ff9a63"
+                  strokeWidth="1.6" vectorEffect="non-scaling-stroke" />
+              </motion.g>
+            </g>
+          </svg>
+
+          {/* pulsing marker, screen centered on the final stage */}
+          <motion.div className="map-marker" style={{ opacity: markerOp }}>
+            <span className="ring" /><span className="dot" />
+          </motion.div>
+        </div>
+
+        <div className="map-overlay-top">
+          <span className="label">The journey to the field</span>
+          {STAGE_TAGS.map((t, i) => <StageTag key={i} progress={p} tag={t} />)}
+        </div>
+
+        {MAP_CAPTIONS.map((c, i) => <MapCaption key={i} progress={scrollYProgress} cap={c} />)}
+      </div>
+    </section>
   );
 }
 
 /* ---------------- nav with active section ---------------- */
 const NAV = [
+  ['Origin', 'origin'],
   ['Problem', 'problem'],
   ['Solution', 'solution'],
-  ['Technology', 'technology'],
+  ['Process', 'process'],
   ['Market', 'market'],
   ['Story', 'story'],
 ];
@@ -147,7 +404,27 @@ function Nav() {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 1, ease: EASE, delay: 0.4 }}
     >
-      <a href="#top" className="wordmark">VAAYU<span>BON</span></a>
+      <a href="#top" className="wordmark" aria-label="Vaayubon home">
+        <svg viewBox="0 0 320 56" className="logo-svg" role="img" aria-label="Vaayubon">
+          <defs>
+            <linearGradient id="vb-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#8fbf63" />
+              <stop offset="1" stopColor="#3c6a2e" />
+            </linearGradient>
+          </defs>
+          {/* sprout above the U */}
+          <g transform="translate(163 4)">
+            <path d="M0 14 C 0.4 9, 0.2 6, -0.6 2" stroke="#4f8a36" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+            <path d="M-1 4 C -7 2, -10 -1, -11 -5 C -6 -5, -2 -2, -1 4 Z" fill="#5d9a40" />
+            <path d="M0 3 C 2 -2, 6 -5, 11 -5 C 10 0, 6 3, 0 3 Z" fill="#74b14e" />
+          </g>
+          <text x="160" y="40" textAnchor="middle" fontFamily="Fraunces, Georgia, serif"
+            fontWeight="600" fontSize="31" letterSpacing="1.5" fill="url(#vb-grad)">VAAYUBON</text>
+          {/* underline swoosh */}
+          <path d="M24 49 C 110 54.5, 215 53.5, 285 45 C 291 44, 294 41.5, 295.5 38"
+            stroke="url(#vb-grad)" strokeWidth="2" fill="none" strokeLinecap="round" />
+        </svg>
+      </a>
       <div className="nav-links">
         {NAV.map(([t, id]) => (
           <a key={id} href={'#' + id} className={active === id ? 'active' : ''}>{t}</a>
@@ -161,7 +438,7 @@ function Nav() {
 /* ---------------- hero ---------------- */
 function Hero() {
   const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
+  const scrollYProgress = useScrollProgress(ref, (r) => -r.top / r.height);
   const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '18%']);
   const bgScale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
   const fade = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
@@ -224,7 +501,7 @@ function Marquee() {
       <span><b>100M</b> tonnes of residue burned annually</span>
       <span><b>$13.6B</b> in carbon value destroyed</span>
       <span><b>1,000+</b> year carbon permanence</span>
-      <span><b>TRL 7&ndash;8</b> proven pyrolysis</span>
+      <span><b>TRL 7-8</b> proven pyrolysis</span>
       <span><b>120+</b> pilot farmers</span>
     </>
   );
@@ -250,7 +527,7 @@ function Word({ children, progress, range }) {
 
 function Manifesto() {
   const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start 0.85', 'end 0.4'] });
+  const scrollYProgress = useScrollProgress(ref, (r, vh) => (0.85 * vh - r.top) / (r.height + 0.45 * vh));
   const words = MANIFESTO.split(' ');
   return (
     <section style={{ padding: '13rem 0' }}>
@@ -268,24 +545,13 @@ function Manifesto() {
   );
 }
 
-/* ---------------- problem ---------------- */
-function Problem() {
+/* ---------------- problem stats (follows the Problem chapter) ---------------- */
+function ProblemStats() {
   return (
-    <section id="problem" style={{ paddingTop: '2rem' }}>
+    <section style={{ paddingTop: '7rem' }}>
       <div className="glow" style={{ width: '40vw', height: '40vw', top: '-10%', right: '-15%', background: 'rgba(194,65,39,0.07)' }} />
       <div className="container">
-        <Reveal className="section-head">
-          <span className="index-num">01</span>
-          <span className="label">The Problem</span>
-        </Reveal>
-
-        <Reveal>
-          <h2 className="mega" style={{ fontSize: 'clamp(2.4rem, 5vw, 5rem)', maxWidth: '18ch' }}>
-            Every year, India burns <span className="outline">$13.6 billion</span> worth of carbon.
-          </h2>
-        </Reveal>
-
-        <div className="grid-2" style={{ marginTop: '5rem' }}>
+        <div className="grid-2">
           <Reveal>
             <ParallaxImage src={homeProblem} alt="Agricultural field burning" tag="Field burning &middot; Rayalaseema" ratio="4/3" />
           </Reveal>
@@ -297,8 +563,7 @@ function Problem() {
             <p>
               With no economic alternative, millions of tonnes of residue are burned
               en masse across the Rayalaseema belt and beyond. Each fire destroys a
-              feedstock asset, degrades soil, and pollutes the air. It is rational
-              behavior in the absence of a market.
+              feedstock asset, degrades soil, and pollutes the air.
             </p>
             <div style={{ display: 'flex', gap: '3rem', marginTop: '3rem' }}>
               <div>
@@ -317,22 +582,17 @@ function Problem() {
   );
 }
 
-/* ---------------- solution ---------------- */
-function Solution() {
+/* ---------------- solution stats ---------------- */
+function SolutionStats() {
   return (
-    <section id="solution" style={{ background: 'var(--bg-2)' }}>
+    <section style={{ background: 'var(--bg-2)' }}>
       <div className="glow" style={{ width: '36vw', height: '36vw', bottom: '-10%', left: '-12%', background: 'rgba(255,122,61,0.06)' }} />
       <div className="container">
-        <Reveal className="section-head">
-          <span className="index-num">02</span>
-          <span className="label">The Solution</span>
-        </Reveal>
-
         <div className="grid-2">
           <Reveal>
             <h2 className="h2" style={{ marginBottom: '2rem' }}>
-              We convert crop residue into{' '}
-              <span className="serif-i" style={{ color: 'var(--ember)' }}>certified biochar carbon credits.</span>
+              Certified removal,{' '}
+              <span className="serif-i" style={{ color: 'var(--ember)' }}>rooted in the field.</span>
             </h2>
             <p>
               Vaayubon bridges the gap between India&rsquo;s massive agricultural
@@ -379,12 +639,12 @@ const RAIL_CARDS = [
   ['01', 'Strategic feedstock', 'Five primary feedstock streams analyzed across the Rayalaseema belt. Rice straw and groundnut shells lead the MVP: high volume, zero cost, high biochar yield.'],
   ['02', 'Scale-up feedstock', 'Cotton stalks, widespread and high in lignin, are earmarked for the Year 2 scale-up.'],
   ['03', 'Wood vinegar', 'A natural pesticide and growth stimulant for India’s organic farming segment, and a high-value co-product.'],
-  ['04', 'Syngas loop', 'Non-condensable gases are recirculated to fuel the process itself, cutting operational energy costs by 20–30%.'],
+  ['04', 'Syngas loop', 'Non-condensable gases are recirculated to fuel the process itself, cutting operational energy costs by 20-30%.'],
 ];
 
 function ProcessRail() {
   const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref });
+  const scrollYProgress = useScrollProgress(ref, pinProgress);
   const x = useTransform(scrollYProgress, [0.05, 0.95], ['4vw', '-58%']);
   return (
     <div ref={ref} style={{ height: '320vh', position: 'relative' }}>
@@ -416,31 +676,14 @@ function ProcessRail() {
 
 function Technology() {
   return (
-    <section id="technology" style={{ paddingBottom: 0 }}>
-      <div className="container">
-        <Reveal className="section-head">
-          <span className="index-num">03</span>
-          <span className="label">Technology &amp; Process</span>
-        </Reveal>
-
-        <Reveal>
-          <h2 className="mega" style={{ fontSize: 'clamp(2.4rem, 5vw, 5rem)' }}>
-            End-to-end <span className="accent">pyrolysis</span><br />&amp; measurement.
-          </h2>
-        </Reveal>
-      </div>
-
-      <div style={{ margin: '5rem 0' }}>
-        <PyrolysisImage />
-      </div>
-
+    <section style={{ paddingBottom: 0, paddingTop: '7rem' }}>
       <div className="container">
         <div className="grid-2">
           <Reveal>
             <h3 style={{ fontSize: '1.8rem', marginBottom: '1.2rem' }}>The Pyrolysis Engine</h3>
             <p>
-              Commercially mature technology operating at TRL 7&ndash;8: thermal
-              decomposition of organic biomass at 400&ndash;700&deg;C in a
+              Commercially mature technology operating at TRL 7-8: thermal
+              decomposition of organic biomass at 400-700&deg;C in a
               low-oxygen environment.
             </p>
             <p style={{ marginTop: '1rem', color: 'var(--ink)' }}>
@@ -453,7 +696,6 @@ function Technology() {
           </Reveal>
         </div>
       </div>
-
       <ProcessRail />
     </section>
   );
@@ -491,7 +733,7 @@ function Market() {
               </div>
               <div className="panel">
                 <h4 style={{ marginBottom: '0.5rem' }}>Physical biochar sales</h4>
-                <p style={{ fontSize: '0.95rem' }}>Subsidized biochar applied back to partner farms, improving crop yields by 15&ndash;30%.</p>
+                <p style={{ fontSize: '0.95rem' }}>Subsidized biochar applied back to partner farms, improving crop yields by 15-30%.</p>
               </div>
               <div className="panel">
                 <h4 style={{ marginBottom: '0.5rem' }}>Pyrolysis co-products</h4>
@@ -532,7 +774,7 @@ function Market() {
               ['Zero-cost feedstock', 'Competitors purchase biomass. Our farmer-as-partner model receives residue freely, in exchange for subsidized biochar.'],
               ['Government integration', 'AP Government rural channel partnerships grant verified extension services and a massive smallholder network.'],
               ['End-to-end MRV', 'Owning the full digital verification chain bypasses the third-party MRV fees that erode competitors’ margins.'],
-              ['First-mover advantage', 'A 12–18 month head-start in the under-served Rayalaseema belt before credible geographic competition emerges.'],
+              ['First-mover advantage', 'A 12 to 18 month head-start in the under-served Rayalaseema belt before credible geographic competition emerges.'],
             ].map(([h, b], i) => (
               <motion.div className="panel" key={h} variants={reveal}>
                 <span className="step-num">/ 0{i + 1}</span>
@@ -643,9 +885,49 @@ export default function App() {
         <Hero />
         <Marquee />
         <Manifesto />
-        <Problem />
-        <Solution />
+
+        <MapJourney />
+
+        <Chapter
+          id="problem"
+          images={homeProblem}
+          kicker="Chapter 01 &middot; The Problem"
+          title={<>Every year, India burns <span className="outline">$13.6 billion</span> worth of carbon.</>}
+          captions={[
+            { head: 'Zero value, zero choice', body: 'For a smallholder farmer, crop residue has no disposal cost and no revenue. Burning it is free.' },
+            { head: 'The fires', body: 'So millions of tonnes burn across the Rayalaseema belt every season. Each fire destroys a feedstock asset, degrades soil, and pollutes the air.' },
+            { head: 'A market failure', body: 'This is not negligence. It is rational behavior in the absence of a market. Vaayubon exists to build that market.' },
+          ]}
+        />
+        <ProblemStats />
+
+        <Chapter
+          id="solution"
+          images={homeSolution}
+          kicker="Chapter 02 &middot; The Solution"
+          title={<>We turn that fire into <span className="accent">certified carbon credits.</span></>}
+          captions={[
+            { head: 'Biochar', body: 'Charred biomass that locks carbon in a stable form for over a millennium. Permanence that forests cannot promise.' },
+            { head: 'Back to the soil', body: 'The same char returns fertility and water retention to the fields the residue came from.' },
+            { head: 'Two winners', body: 'Institutional buyers get verified, high durability removal. Farmers get a new income stream. The fires stop.' },
+          ]}
+        />
+        <SolutionStats />
+
+        <Chapter
+          id="process"
+          images={[homeField, techPyrolysis, commSoil, commFarmer]}
+          kicker="Chapter 03 &middot; The Process"
+          title={<>From field, to flame, to <span className="accent">permanence.</span></>}
+          captions={[
+            { head: '01 · Collect', body: 'Rice straw and groundnut shells, gathered at zero cost from partner farms across the belt.' },
+            { head: '02 · Pyrolyze', body: 'Thermal decomposition at 400-700°C in a low oxygen chamber. No burning, no smoke, no loss.' },
+            { head: '03 · Lock', body: 'Half of the biomass carbon becomes stable char, sequestered for a thousand years or more.' },
+            { head: '04 · Return', body: 'Subsidized biochar goes back to partner farms, lifting crop yields by 15-30%. Every tonne is digitally measured, reported, and verified.' },
+          ]}
+        />
         <Technology />
+
         <Market />
         <Story />
         <Footer />
