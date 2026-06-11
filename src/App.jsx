@@ -6,7 +6,6 @@ import {
 import './index.css';
 import { WORLD, INDIA, INDIA_STATES, AP, AP_DISTRICTS, ANANTAPUR, FOCUS } from './mapdata';
 
-import heroImg from './assets/hero.png';
 import homeProblem from './assets/img/home_problem.png';
 import homeSolution from './assets/img/home_solution.png';
 import homeField from './assets/img/home_field.png';
@@ -219,7 +218,7 @@ const CAM_I = [0, 1, 1, 2, 2, 3];
 
 const MAP_CAPTIONS = [
   {
-    p: [0.02, 0.06, 0.16, 0.22],
+    p: [0.05, 0.085, 0.16, 0.22],
     head: 'It starts with the ground',
     body: 'Every credit we issue begins on a real farm, in real soil. Scroll to fly to where the work happens.',
   },
@@ -241,7 +240,7 @@ const MAP_CAPTIONS = [
 ];
 
 const STAGE_TAGS = [
-  { p: [0.02, 0.05, 0.2, 0.26], t: 'THE EARTH' },
+  { p: [0.04, 0.07, 0.2, 0.26], t: 'THE EARTH' },
   { p: [0.27, 0.31, 0.4, 0.47], t: 'INDIA' },
   { p: [0.54, 0.58, 0.66, 0.72], t: 'ANDHRA PRADESH' },
   { p: [0.8, 0.85, 1, 1], t: 'ANANTAPUR DISTRICT · 14.68° N, 77.60° E' },
@@ -297,6 +296,8 @@ function MapJourney() {
   const anantaOp = useTransform(p, [0.64, 0.78], [0, 1]);
   const markerOp = useTransform(scrollYProgress, [0.8, 0.87], [0, 1]);
   const gridOp = useTransform(p, [0, 0.18, 0.3], [0.5, 0.5, 0]);
+  const introOp = useTransform(scrollYProgress, [0, 0.018, 0.045], [1, 1, 0]);
+  const introY = useTransform(scrollYProgress, [0, 0.045], [0, -40]);
 
   return (
     <section id="origin" ref={ref} className="chapter map-journey" style={{ height: '680vh' }}>
@@ -361,6 +362,29 @@ function MapJourney() {
             <span className="ring" /><span className="dot" />
           </motion.div>
         </div>
+
+        <motion.div className="map-intro" style={{ opacity: introOp, y: introY }}>
+          <svg viewBox="0 0 320 56" className="intro-logo" role="img" aria-label="Vaayubon">
+            <defs>
+              <linearGradient id="vb-grad-i" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor="#8fbf63" />
+                <stop offset="1" stopColor="#3c6a2e" />
+              </linearGradient>
+            </defs>
+            <g transform="translate(163 4)">
+              <path d="M0 14 C 0.4 9, 0.2 6, -0.6 2" stroke="#4f8a36" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+              <path d="M-1 4 C -7 2, -10 -1, -11 -5 C -6 -5, -2 -2, -1 4 Z" fill="#5d9a40" />
+              <path d="M0 3 C 2 -2, 6 -5, 11 -5 C 10 0, 6 3, 0 3 Z" fill="#74b14e" />
+            </g>
+            <text x="160" y="40" textAnchor="middle" fontFamily="Fraunces, Georgia, serif"
+              fontWeight="600" fontSize="31" letterSpacing="1.5" fill="url(#vb-grad-i)">VAAYUBON</text>
+            <path d="M24 49 C 110 54.5, 215 53.5, 285 45 C 291 44, 294 41.5, 295.5 38"
+              stroke="url(#vb-grad-i)" strokeWidth="2" fill="none" strokeLinecap="round" />
+          </svg>
+          <p className="intro-tag">Biochar carbon removal &middot; Andhra Pradesh, India</p>
+          <p className="intro-line">We turn farm waste into permanent, verifiable carbon removal.</p>
+          <div className="scroll-cue">Scroll to begin</div>
+        </motion.div>
 
         <div className="map-overlay-top">
           <span className="label">The journey to the field</span>
@@ -435,62 +459,6 @@ function Nav() {
   );
 }
 
-/* ---------------- hero ---------------- */
-function Hero() {
-  const ref = useRef(null);
-  const scrollYProgress = useScrollProgress(ref, (r) => -r.top / r.height);
-  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '18%']);
-  const bgScale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
-  const fade = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
-  const rise = useTransform(scrollYProgress, [0, 0.7], ['0%', '-12%']);
-
-  return (
-    <header className="hero" id="top" ref={ref}>
-      <motion.div className="hero-bg" style={{ y: bgY, scale: bgScale }}>
-        <img src={heroImg} alt="Agricultural fields at dusk" />
-      </motion.div>
-      <motion.div className="container" style={{ opacity: fade, y: rise }}>
-        <motion.p
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: EASE, delay: 0.6 }}
-          className="label"
-          style={{ marginBottom: '1.6rem' }}
-        >
-          Biochar Carbon Removal &middot; Andhra Pradesh, India
-        </motion.p>
-        <h1 className="mega">
-          {['The future of', 'carbon is rooted', 'in agriculture.'].map((line, i) => (
-            <span key={line} style={{ display: 'block', overflow: 'hidden' }}>
-              <motion.span
-                style={{ display: 'block' }}
-                initial={{ y: '110%' }}
-                animate={{ y: 0 }}
-                transition={{ duration: 1.2, ease: EASE, delay: 0.7 + i * 0.13 }}
-              >
-                {i === 1 ? <>carbon is <span className="accent">rooted</span></> : line}
-              </motion.span>
-            </span>
-          ))}
-        </h1>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.2, delay: 1.6 }}
-          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '3.5rem', flexWrap: 'wrap', gap: '2rem' }}
-        >
-          <p style={{ maxWidth: '440px' }}>
-            Turning agricultural waste into institutional-grade carbon removal,
-            at the intersection of global climate mandates, farmer empowerment, and
-            commercially proven pyrolysis.
-          </p>
-          <div className="scroll-cue">Scroll</div>
-        </motion.div>
-      </motion.div>
-    </header>
-  );
-}
-
 /* ---------------- velocity-reactive marquee ---------------- */
 function Marquee() {
   const { scrollY } = useScroll();
@@ -545,83 +513,24 @@ function Manifesto() {
   );
 }
 
-/* ---------------- problem stats (follows the Problem chapter) ---------------- */
-function ProblemStats() {
+/* ---------------- stats band ---------------- */
+function StatsBand() {
   return (
-    <section style={{ paddingTop: '7rem' }}>
-      <div className="glow" style={{ width: '40vw', height: '40vw', top: '-10%', right: '-15%', background: 'rgba(194,65,39,0.07)' }} />
+    <section style={{ padding: '7rem 0' }}>
+      <div className="glow" style={{ width: '36vw', height: '36vw', top: '-20%', right: '-12%', background: 'rgba(255,122,61,0.06)' }} />
       <div className="container">
-        <div className="grid-2">
-          <Reveal>
-            <ParallaxImage src={homeProblem} alt="Agricultural field burning" tag="Field burning &middot; Rayalaseema" ratio="4/3" />
-          </Reveal>
-          <Reveal style={{ paddingTop: '2rem' }}>
-            <p style={{ fontSize: '1.2rem', color: 'var(--ink)', marginBottom: '1.5rem' }}>
-              Smallholder farmers face a structural economic failure: crop residue
-              has zero disposal cost and zero revenue.
-            </p>
-            <p>
-              With no economic alternative, millions of tonnes of residue are burned
-              en masse across the Rayalaseema belt and beyond. Each fire destroys a
-              feedstock asset, degrades soil, and pollutes the air.
-            </p>
-            <div style={{ display: 'flex', gap: '3rem', marginTop: '3rem' }}>
-              <div>
-                <div className="stat-num"><CountUp to={100} suffix="M" /></div>
-                <div className="stat-cap"><strong>Tonnes</strong>of crop residue burned in India annually</div>
-              </div>
-              <div>
-                <div className="stat-num"><CountUp to={13.6} prefix="$" suffix="B" decimals={1} /></div>
-                <div className="stat-cap"><strong>Destroyed</strong>in potential carbon credit value</div>
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ---------------- solution stats ---------------- */
-function SolutionStats() {
-  return (
-    <section style={{ background: 'var(--bg-2)' }}>
-      <div className="glow" style={{ width: '36vw', height: '36vw', bottom: '-10%', left: '-12%', background: 'rgba(255,122,61,0.06)' }} />
-      <div className="container">
-        <div className="grid-2">
-          <Reveal>
-            <h2 className="h2" style={{ marginBottom: '2rem' }}>
-              Certified removal,{' '}
-              <span className="serif-i" style={{ color: 'var(--ember)' }}>rooted in the field.</span>
-            </h2>
-            <p>
-              Vaayubon bridges the gap between India&rsquo;s massive agricultural
-              waste streams and institutional demand from technology giants for
-              verified, high-durability carbon removal.
-            </p>
-            <p style={{ marginTop: '1.2rem' }}>
-              Biochar locks carbon into a stable form for over a millennium,
-              while returning fertility to the very soil the residue came from.
-            </p>
-          </Reveal>
-          <Reveal>
-            <ParallaxImage src={homeSolution} alt="Hands holding biochar" tag="Biochar &middot; stable carbon" ratio="4/3" />
-          </Reveal>
-        </div>
-
         <motion.div
           className="stat-grid"
-          style={{ marginTop: '7rem' }}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-80px' }}
           variants={stagger}
         >
           {[
-            [<CountUp key="a" to={25} prefix="$" suffix="B" />, 'Target market', 'Global CDR market projection by 2029'],
-            [<CountUp key="b" to={150} prefix="$" />, 'Farmer impact', 'Direct income supplement per household, per year'],
-            [<CountUp key="c" to={32} suffix="%" />, 'Net margin', 'Yielded by our unit economics'],
-            [<CountUp key="d" to={120} suffix="+" />, 'Pilot traction', 'Active pilot farmers on the ground'],
+            [<CountUp key="a" to={100} suffix="M" />, 'Tonnes burned', 'Crop residue burned in India every year'],
+            [<CountUp key="b" to={13.6} prefix="$" suffix="B" decimals={1} />, 'Value destroyed', 'Potential carbon credit value lost to the fires'],
+            [<CountUp key="c" to={1000} suffix="+" />, 'Year permanence', 'Carbon locked in stable form, far beyond forests'],
+            [<CountUp key="d" to={120} suffix="+" />, 'Pilot farmers', 'Already active on the ground with Vaayubon'],
           ].map(([num, head, cap]) => (
             <motion.div className="panel" key={head} variants={reveal}>
               <div className="stat-num">{num}</div>
@@ -701,50 +610,33 @@ function Technology() {
   );
 }
 
-/* ---------------- market ---------------- */
-function Market() {
+/* ---------------- market details (follows the Market chapter) ---------------- */
+function MarketDetails() {
   return (
-    <section id="market" style={{ background: 'var(--bg-2)' }}>
+    <section style={{ background: 'var(--bg-2)' }}>
       <div className="glow" style={{ width: '38vw', height: '38vw', top: '0%', right: '-10%', background: 'rgba(255,122,61,0.05)' }} />
       <div className="container">
-        <Reveal className="section-head">
-          <span className="index-num">04</span>
-          <span className="label">Commercialization &amp; Moat</span>
-        </Reveal>
-
-        <Reveal>
-          <h2 className="mega" style={{ fontSize: 'clamp(2.4rem, 5vw, 5rem)' }}>
-            Built to <span className="accent">scale</span>.<br />
-            <span className="outline">Defensible by design.</span>
-          </h2>
-        </Reveal>
-
-        <div style={{ margin: '5rem 0' }}>
-          <ParallaxImage src={commFarmer} alt="Indian farmer shoveling biochar" tag="Farmer impact" ratio="21/9" range={16} />
-        </div>
-
         <div className="grid-2">
           <Reveal>
             <h3 style={{ fontSize: '1.8rem', marginBottom: '2rem' }}>Three revenue streams</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
               <div className="panel">
                 <h4 style={{ color: 'var(--ember)', marginBottom: '0.5rem' }}>Verified carbon credits</h4>
-                <p style={{ fontSize: '0.95rem' }}>Forward offtake contracts with corporate buyers at a conservative blended rate of $136 per tonne.</p>
+                <p style={{ fontSize: '0.95rem' }}>Forward offtake contracts with corporate buyers at a conservative blended rate of $136 per tonne, in a CDR market projected to reach $25B by 2029.</p>
               </div>
               <div className="panel">
                 <h4 style={{ marginBottom: '0.5rem' }}>Physical biochar sales</h4>
-                <p style={{ fontSize: '0.95rem' }}>Subsidized biochar applied back to partner farms, improving crop yields by 15-30%.</p>
+                <p style={{ fontSize: '0.95rem' }}>Subsidized biochar applied back to partner farms, improving crop yields by 15-30% and adding $150 per year to household income.</p>
               </div>
               <div className="panel">
                 <h4 style={{ marginBottom: '0.5rem' }}>Pyrolysis co-products</h4>
-                <p style={{ fontSize: '0.95rem' }}>Wood vinegar and syngas generate high-margin incremental revenue at scale.</p>
+                <p style={{ fontSize: '0.95rem' }}>Wood vinegar and syngas generate high-margin incremental revenue at scale, supporting 32% net margins.</p>
               </div>
             </div>
           </Reveal>
 
           <Reveal>
-            <ParallaxImage src={commSoil} alt="Terra preta rich soil" tag="Soil health" ratio="16/9" />
-            <h3 style={{ fontSize: '1.8rem', margin: '2.5rem 0 1rem' }}>Rigorous certification</h3>
+            <h3 style={{ fontSize: '1.8rem', marginBottom: '2rem' }}>Rigorous certification</h3>
             <p>Dual certification through the world&rsquo;s leading registries, for institutional-grade credibility.</p>
             <div className="grid-2-tight" style={{ marginTop: '1.5rem' }}>
               <div className="panel">
@@ -773,7 +665,7 @@ function Market() {
             {[
               ['Zero-cost feedstock', 'Competitors purchase biomass. Our farmer-as-partner model receives residue freely, in exchange for subsidized biochar.'],
               ['Government integration', 'AP Government rural channel partnerships grant verified extension services and a massive smallholder network.'],
-              ['End-to-end MRV', 'Owning the full digital verification chain bypasses the third-party MRV fees that erode competitors’ margins.'],
+              ['End-to-end MRV', 'Owning the full digital verification chain bypasses the third-party MRV fees that erode competitors\u2019 margins.'],
               ['First-mover advantage', 'A 12 to 18 month head-start in the under-served Rayalaseema belt before credible geographic competition emerges.'],
             ].map(([h, b], i) => (
               <motion.div className="panel" key={h} variants={reveal}>
@@ -784,66 +676,6 @@ function Market() {
             ))}
           </div>
         </motion.div>
-      </div>
-    </section>
-  );
-}
-
-/* ---------------- story ---------------- */
-function Story() {
-  return (
-    <section id="story">
-      <div className="glow" style={{ width: '34vw', height: '34vw', top: '20%', left: '-12%', background: 'rgba(194,65,39,0.06)' }} />
-      <div className="container">
-        <Reveal className="section-head">
-          <span className="index-num">05</span>
-          <span className="label">The Vaayubon Story</span>
-        </Reveal>
-
-        <Reveal>
-          <h2 className="mega" style={{ fontSize: 'clamp(2.4rem, 5vw, 5rem)' }}>
-            From <span className="accent">Nandyal</span><br />to net-zero.
-          </h2>
-        </Reveal>
-
-        <div className="grid-2" style={{ marginTop: '5rem' }}>
-          <Reveal>
-            <ParallaxImage src={storySetting} alt="Nandyal village setting" tag="The setting &middot; Nandyal, AP" ratio="4/5" />
-          </Reveal>
-
-          <Reveal style={{ paddingTop: '1rem' }}>
-            <h3 className="serif-i" style={{ fontSize: 'clamp(1.5rem, 2.4vw, 2.1rem)', lineHeight: 1.35, fontWeight: 300, marginBottom: '2.5rem', color: 'var(--ink)' }}>
-              &ldquo;Industrial competitors were tackling carbon removal with
-              capital-heavy, disconnected models. We wanted to build something
-              different.&rdquo;
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.4rem' }}>
-              <p>
-                Originating from deep agricultural roots in Nandyal, Andhra Pradesh,
-                and incubated at the IE Climate Tech Lab 2026, Vaayubon was forged
-                to solve a problem we witnessed firsthand.
-              </p>
-              <p>
-                Our founders, Srihas Vunnam, Manu Muralee, and Akarshith
-                Reddy, recognized that the annual burning of crop residue was
-                not farmer negligence, but rational behavior in the absence of a
-                market.
-              </p>
-              <p>
-                Countless interviews with farmers, officials, and carbon buyers
-                taught us that income reliability is paramount. That insight is the
-                bedrock of Vaayubon: agricultural waste becomes a $150-per-year
-                income supplement for households that need it, while carbon
-                is locked in the ground for a millennium.
-              </p>
-              <p style={{ color: 'var(--ink)', fontWeight: 500 }}>
-                Backed by 120+ pilot farmers, Vaayubon is proving a model that
-                scales, and inviting the world to help build India&rsquo;s
-                carbon future.
-              </p>
-            </div>
-          </Reveal>
-        </div>
       </div>
     </section>
   );
@@ -881,12 +713,10 @@ export default function App() {
       <CursorGlow />
       <motion.div className="progress-bar" style={{ scaleX: progress }} />
       <Nav />
-      <main>
-        <Hero />
+      <main id="top">
+        <MapJourney />
         <Marquee />
         <Manifesto />
-
-        <MapJourney />
 
         <Chapter
           id="problem"
@@ -899,7 +729,7 @@ export default function App() {
             { head: 'A market failure', body: 'This is not negligence. It is rational behavior in the absence of a market. Vaayubon exists to build that market.' },
           ]}
         />
-        <ProblemStats />
+        <StatsBand />
 
         <Chapter
           id="solution"
@@ -912,7 +742,6 @@ export default function App() {
             { head: 'Two winners', body: 'Institutional buyers get verified, high durability removal. Farmers get a new income stream. The fires stop.' },
           ]}
         />
-        <SolutionStats />
 
         <Chapter
           id="process"
@@ -920,16 +749,39 @@ export default function App() {
           kicker="Chapter 03 &middot; The Process"
           title={<>From field, to flame, to <span className="accent">permanence.</span></>}
           captions={[
-            { head: '01 · Collect', body: 'Rice straw and groundnut shells, gathered at zero cost from partner farms across the belt.' },
-            { head: '02 · Pyrolyze', body: 'Thermal decomposition at 400-700°C in a low oxygen chamber. No burning, no smoke, no loss.' },
-            { head: '03 · Lock', body: 'Half of the biomass carbon becomes stable char, sequestered for a thousand years or more.' },
-            { head: '04 · Return', body: 'Subsidized biochar goes back to partner farms, lifting crop yields by 15-30%. Every tonne is digitally measured, reported, and verified.' },
+            { head: '01 \u00b7 Collect', body: 'Rice straw and groundnut shells, gathered at zero cost from partner farms across the belt.' },
+            { head: '02 \u00b7 Pyrolyze', body: 'Thermal decomposition at 400-700\u00b0C in a low oxygen chamber. No burning, no smoke, no loss.' },
+            { head: '03 \u00b7 Lock', body: 'Half of the biomass carbon becomes stable char, sequestered for a thousand years or more.' },
+            { head: '04 \u00b7 Return', body: 'Subsidized biochar goes back to partner farms, lifting crop yields by 15-30%. Every tonne is digitally measured, reported, and verified.' },
           ]}
         />
         <Technology />
 
-        <Market />
-        <Story />
+        <Chapter
+          id="market"
+          images={commFarmer}
+          kicker="Chapter 04 &middot; The Market"
+          title={<>Built to <span className="accent">scale</span>. Defensible by design.</>}
+          captions={[
+            { head: 'Three revenue streams', body: 'Verified carbon credits at $136 per tonne, physical biochar sales, and high-margin pyrolysis co-products.' },
+            { head: 'Institutional grade', body: 'Dual certification through Puro.earth and Verra VCS, in a carbon removal market projected to reach $25B by 2029.' },
+            { head: 'Four moats', body: 'Zero-cost feedstock, government integration, end-to-end digital MRV, and a 12 to 18 month first-mover head-start.' },
+          ]}
+        />
+        <MarketDetails />
+
+        <Chapter
+          id="story"
+          images={storySetting}
+          kicker="Chapter 05 &middot; The Story"
+          title={<>From <span className="accent">Nandyal</span> to net-zero.</>}
+          captions={[
+            { head: 'Roots', body: 'Born from deep agricultural roots in Nandyal, Andhra Pradesh, and incubated at the IE Climate Tech Lab 2026. We watched the fires firsthand.' },
+            { head: 'The insight', body: 'Countless interviews with farmers, officials, and buyers taught us one thing: income reliability is paramount. That insight is the bedrock of Vaayubon.' },
+            { head: 'The team', body: 'Founded by Srihas Vunnam, Manu Muralee, and Akarshith Reddy. Backed by 120+ pilot farmers, and inviting the world to build India\u2019s carbon future.' },
+          ]}
+        />
+
         <Footer />
       </main>
     </>

@@ -336,3 +336,33 @@ footer { border-top: 1px solid var(--line); padding: 6rem 0 3rem; position: rela
 /* ---------- logo ---------- */
 .wordmark { display: flex; align-items: center; }
 .logo-svg { height: 34px; width: auto; display: block; }
+
+
+/* ---------- map intro (site opener) ---------- */
+.map-intro {
+  position: absolute; inset: 0; z-index: 3;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  text-align: center; gap: 1.3rem; padding: 0 6vw; pointer-events: none;
+}
+.intro-logo { width: min(420px, 72vw); height: auto; filter: drop-shadow(0 6px 40px rgba(0,0,0,0.6)); }
+.intro-tag {
+  font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.28em;
+  text-transform: uppercase; color: var(--muted); max-width: none;
+}
+.intro-line {
+  font-size: clamp(1rem, 1.6vw, 1.25rem); color: var(--ink); max-width: 34ch;
+}
+.map-intro .scroll-cue { margin-top: 2.2rem; }
+
+@media (max-width: 720px) {
+  .map-stage { font-size: 0.56rem; letter-spacing: 0.14em; padding: 0.45rem 0.65rem; max-width: 60vw; }
+  .map-overlay-top .label { font-size: 0.6rem; }
+  .chapter-caption { padding: 1.3rem 1.4rem; }
+  .chapter-caption h3 { font-size: 1.2rem; }
+  .chapter-caption p { font-size: 0.92rem; }
+  .map-cap { bottom: 8vh; }
+  .intro-line { font-size: 1rem; }
+  .rail-card { width: 78vw; min-width: 78vw; }
+  .stat-grid { grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+  .stat-num { font-size: 2rem; }
+}
