@@ -1,10 +1,12 @@
 import { useRef, useEffect, useState } from 'react';
 import {
-  motion, useScroll, useTransform, useSpring, useInView,
+  AnimatePresence, motion, useScroll, useTransform, useSpring, useInView,
   useVelocity, useMotionValue, animate,
 } from 'framer-motion';
+import { Menu, X } from 'lucide-react';
 import './index.css';
 import { WORLD, INDIA, INDIA_STATES, AP, AP_DISTRICTS, ANANTAPUR, FOCUS } from './mapdata';
+import logoImg from './assets/logo.png';
 
 import homeProblem from './assets/img/home_problem.png';
 import homeSolution from './assets/img/home_solution.png';
@@ -364,23 +366,7 @@ function MapJourney() {
         </div>
 
         <motion.div className="map-intro" style={{ opacity: introOp, y: introY }}>
-          <svg viewBox="0 0 320 56" className="intro-logo" role="img" aria-label="Vaayubon">
-            <defs>
-              <linearGradient id="vb-grad-i" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="#8fbf63" />
-                <stop offset="1" stopColor="#3c6a2e" />
-              </linearGradient>
-            </defs>
-            <g transform="translate(163 4)">
-              <path d="M0 14 C 0.4 9, 0.2 6, -0.6 2" stroke="#4f8a36" strokeWidth="1.6" fill="none" strokeLinecap="round" />
-              <path d="M-1 4 C -7 2, -10 -1, -11 -5 C -6 -5, -2 -2, -1 4 Z" fill="#5d9a40" />
-              <path d="M0 3 C 2 -2, 6 -5, 11 -5 C 10 0, 6 3, 0 3 Z" fill="#74b14e" />
-            </g>
-            <text x="160" y="40" textAnchor="middle" fontFamily="Fraunces, Georgia, serif"
-              fontWeight="600" fontSize="31" letterSpacing="1.5" fill="url(#vb-grad-i)">VAAYUBON</text>
-            <path d="M24 49 C 110 54.5, 215 53.5, 285 45 C 291 44, 294 41.5, 295.5 38"
-              stroke="url(#vb-grad-i)" strokeWidth="2" fill="none" strokeLinecap="round" />
-          </svg>
+          <img src={logoImg} className="intro-logo-img" alt="Vaayubon Logo" />
           <p className="intro-tag">Biochar carbon removal &middot; Andhra Pradesh, India</p>
           <p className="intro-line">We turn farm waste into permanent, verifiable carbon removal.</p>
           <div className="scroll-cue">Scroll to begin</div>
@@ -409,6 +395,7 @@ const NAV = [
 
 function Nav() {
   const [active, setActive] = useState('');
+  const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => {
     const onScroll = () => {
       let current = '';
@@ -429,25 +416,7 @@ function Nav() {
       transition={{ duration: 1, ease: EASE, delay: 0.4 }}
     >
       <a href="#top" className="wordmark" aria-label="Vaayubon home">
-        <svg viewBox="0 0 320 56" className="logo-svg" role="img" aria-label="Vaayubon">
-          <defs>
-            <linearGradient id="vb-grad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#8fbf63" />
-              <stop offset="1" stopColor="#3c6a2e" />
-            </linearGradient>
-          </defs>
-          {/* sprout above the U */}
-          <g transform="translate(163 4)">
-            <path d="M0 14 C 0.4 9, 0.2 6, -0.6 2" stroke="#4f8a36" strokeWidth="1.6" fill="none" strokeLinecap="round" />
-            <path d="M-1 4 C -7 2, -10 -1, -11 -5 C -6 -5, -2 -2, -1 4 Z" fill="#5d9a40" />
-            <path d="M0 3 C 2 -2, 6 -5, 11 -5 C 10 0, 6 3, 0 3 Z" fill="#74b14e" />
-          </g>
-          <text x="160" y="40" textAnchor="middle" fontFamily="Fraunces, Georgia, serif"
-            fontWeight="600" fontSize="31" letterSpacing="1.5" fill="url(#vb-grad)">VAAYUBON</text>
-          {/* underline swoosh */}
-          <path d="M24 49 C 110 54.5, 215 53.5, 285 45 C 291 44, 294 41.5, 295.5 38"
-            stroke="url(#vb-grad)" strokeWidth="2" fill="none" strokeLinecap="round" />
-        </svg>
+        <img src={logoImg} className="logo-img" alt="Vaayubon Logo" />
       </a>
       <div className="nav-links">
         {NAV.map(([t, id]) => (
@@ -455,6 +424,37 @@ function Nav() {
         ))}
         <a className="cta-pill" href="mailto:invest@vaayubon.com">Invest</a>
       </div>
+      <button
+        className="menu-toggle"
+        onClick={() => setMenuOpen(!menuOpen)}
+        aria-label="Toggle menu"
+        aria-expanded={menuOpen}
+      >
+        {menuOpen ? <X size={20} /> : <Menu size={20} />}
+      </button>
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            className="mobile-menu"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3, ease: EASE }}
+          >
+            {NAV.map(([t, id]) => (
+              <a
+                key={id}
+                href={'#' + id}
+                className={active === id ? 'active' : ''}
+                onClick={() => setMenuOpen(false)}
+              >
+                {t}
+              </a>
+            ))}
+            <a className="cta-pill" href="mailto:invest@vaayubon.com" onClick={() => setMenuOpen(false)}>Invest</a>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.nav>
   );
 }

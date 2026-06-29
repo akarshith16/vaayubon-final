@@ -336,7 +336,79 @@ footer { border-top: 1px solid var(--line); padding: 6rem 0 3rem; position: rela
 /* ---------- logo ---------- */
 .wordmark { display: flex; align-items: center; }
 .logo-svg { height: 34px; width: auto; display: block; }
+.logo-img {
+  height: 38px;
+  width: auto;
+  display: block;
+  filter: brightness(1.2) contrast(1.1);
+  transition: opacity 0.3s ease;
+}
+.logo-img:hover {
+  opacity: 0.9;
+}
 
+/* ---------- mobile navigation toggle & menu ---------- */
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--ink);
+  cursor: pointer;
+  padding: 0.5rem;
+  align-items: center;
+  justify-content: center;
+  z-index: 95;
+  transition: color 0.3s ease;
+}
+.menu-toggle:hover {
+  color: var(--ember);
+}
+
+.mobile-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: rgba(8, 7, 6, 0.95);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  padding: 2.2rem 6vw;
+  gap: 1.6rem;
+  z-index: 75;
+}
+.mobile-menu a {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(242, 237, 228, 0.05);
+  transition: color 0.3s ease, padding-left 0.3s ease;
+}
+.mobile-menu a:hover,
+.mobile-menu a.active {
+  color: var(--ember);
+  padding-left: 4px;
+}
+.mobile-menu .cta-pill {
+  text-align: center;
+  margin-top: 0.8rem;
+  width: 100%;
+  border-bottom: none;
+}
+.mobile-menu .cta-pill:hover {
+  padding-left: 0;
+}
+
+@media (max-width: 900px) {
+  .menu-toggle {
+    display: flex;
+  }
+}
 
 /* ---------- map intro (site opener) ---------- */
 .map-intro {
@@ -345,6 +417,13 @@ footer { border-top: 1px solid var(--line); padding: 6rem 0 3rem; position: rela
   text-align: center; gap: 1.3rem; padding: 0 6vw; pointer-events: none;
 }
 .intro-logo { width: min(420px, 72vw); height: auto; filter: drop-shadow(0 6px 40px rgba(0,0,0,0.6)); }
+.intro-logo-img {
+  width: min(340px, 68vw);
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  filter: drop-shadow(0 6px 40px rgba(0,0,0,0.6)) brightness(1.2) contrast(1.1);
+}
 .intro-tag {
   font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.28em;
   text-transform: uppercase; color: var(--muted); max-width: none;
