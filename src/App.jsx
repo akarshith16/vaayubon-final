@@ -368,7 +368,7 @@ function MapJourney() {
         <motion.div className="map-intro" style={{ opacity: introOp, y: introY }}>
           <img src={logoImg} className="intro-logo-img" alt="Vaayubon Logo" />
           <p className="intro-tag">Biochar carbon removal &middot; Andhra Pradesh, India</p>
-          <p className="intro-line">We turn farm waste into permanent, verifiable carbon removal.</p>
+          <h1 className="intro-line">Turning India's farm waste into permanent, verified carbon removal.</h1>
           <div className="scroll-cue">Scroll to begin</div>
         </motion.div>
 
