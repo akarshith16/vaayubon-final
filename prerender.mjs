@@ -43,8 +43,25 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
     console.log('BODY PREVIEW:', bodyContent.substring(0, 150));
     
     let html = await page.content();
+    html = html.replaceAll(`http://localhost:${port}`, '');
     html = html.replace(/<meta name="description"[^>]*>/i, `<meta name="description" content="India's crop residue, turned into durable, verified carbon removal — permanent biochar CDR that also pays farmers. Explore Vaayubon's removal credits." />`);
     html = html.replace(/<meta property="og:description"[^>]*>/i, `<meta property="og:description" content="India's crop residue, turned into durable, verified carbon removal — permanent biochar CDR that also pays farmers." />`);
+    
+    // Inject JSON-LD
+    const jsonLd = `
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        { "@type": "Organization", "@id": "https://vaayubon.com/#organization", "name": "Vaayubon", "url": "https://vaayubon.com/", "logo": "https://vaayubon.com/og-image.png", "description": "Vaayubon turns India's crop residue into durable, verified biochar carbon removal — permanent CDR that also generates farmer income.", "sameAs": ["https://www.linkedin.com/company/vaayubon"] },
+        { "@type": "WebSite", "@id": "https://vaayubon.com/#website", "url": "https://vaayubon.com/", "name": "Vaayubon", "publisher": { "@id": "https://vaayubon.com/#organization" } }
+      ]
+    }
+    </script>
+    `;
+    html = html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/gi, '');
+    html = html.replace('</head>', jsonLd + '</head>');
+    
     fs.writeFileSync(path.join(__dirname, 'dist', 'index.html'), html);
     
     await browser.close();

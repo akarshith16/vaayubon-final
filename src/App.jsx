@@ -101,7 +101,7 @@ function CountUp({ to, prefix = '', suffix = '', decimals = 0 }) {
     });
     return () => controls.stop();
   }, [inView, to, prefix, suffix, decimals]);
-  return <span ref={ref}>{prefix}0{suffix}</span>;
+  return <span ref={ref}>{prefix}{to.toFixed(decimals)}{suffix}</span>;
 }
 
 /* ---------------- parallax image ---------------- */
@@ -111,7 +111,7 @@ function ParallaxImage({ src, alt, tag, ratio = '16/8', range = 14, children }) 
   const y = useTransform(scrollYProgress, [0, 1], [`-${range}%`, `${range}%`]);
   return (
     <div className="img-frame" ref={ref} style={{ aspectRatio: ratio }}>
-      <motion.img src={src} alt={alt} style={{ y, scale: 1.3, willChange: 'transform' }} />
+      <motion.img src={src} alt={alt} loading="lazy" style={{ y, scale: 1.3, willChange: 'transform' }} />
       {tag && <div className="img-tag">{tag}</div>}
       {children}
     </div>
@@ -174,11 +174,23 @@ function Chapter({ id, images, kicker, title, captions, align = 'left' }) {
   );
 }
 
+function getAltText(src) {
+  if (typeof src !== 'string') return "Vaayubon biochar carbon removal";
+  if (src.includes('problem')) return "Agricultural crop residue burning causing pollution in India";
+  if (src.includes('solution')) return "High quality biochar produced from agricultural waste for carbon removal";
+  if (src.includes('field')) return "Collecting crop residue from farms in Andhra Pradesh";
+  if (src.includes('pyrolysis') || src.includes('machinery')) return "Continuous pyrolysis machinery processing biomass";
+  if (src.includes('soil')) return "Biochar applied to soil to improve crop yield and sequester carbon";
+  if (src.includes('farmer')) return "Indian farmer partner benefiting from biochar application";
+  if (src.includes('story')) return "Vaayubon founders at a facility in Nandyal";
+  return "Vaayubon biochar carbon removal";
+}
+
 function ChapterBg({ src, scale, progress, range }) {
   const opacity = range ? useTransform(progress, range, [0, 1]) : 1;
   return (
     <motion.div className="chapter-bg" style={{ opacity }}>
-      <motion.img src={src} alt="" style={{ scale, willChange: 'transform' }} />
+      <motion.img src={src} alt={getAltText(src)} loading="lazy" style={{ scale, willChange: 'transform' }} />
     </motion.div>
   );
 }
@@ -366,7 +378,7 @@ function MapJourney() {
         </div>
 
         <motion.div className="map-intro" style={{ opacity: introOp, y: introY }}>
-          <img src={logoImg} className="intro-logo-img" alt="Vaayubon Logo" />
+          <img src={logoImg} className="intro-logo-img" alt="Vaayubon biochar carbon removal logo" />
           <p className="intro-tag">Biochar carbon removal &middot; Andhra Pradesh, India</p>
           <h1 className="intro-line">Turning India's farm waste into permanent, verified carbon removal.</h1>
           <div className="scroll-cue">Scroll to begin</div>
@@ -416,7 +428,7 @@ function Nav() {
       transition={{ duration: 1, ease: EASE, delay: 0.4 }}
     >
       <a href="#top" className="wordmark" aria-label="Vaayubon home">
-        <img src={logoImg} className="logo-img" alt="Vaayubon Logo" />
+        <img src={logoImg} className="logo-img" alt="Vaayubon biochar carbon removal logo" />
       </a>
       <div className="nav-links">
         {NAV.map(([t, id]) => (
@@ -487,9 +499,12 @@ function Word({ children, progress, range }) {
   const opacity = useTransform(progress, range, [0.13, 1]);
   const color = useTransform(progress, range, ['#5c574f', '#f2ede4']);
   return (
-    <motion.span style={{ opacity, color, display: 'inline-block', marginRight: '0.32ch' }}>
-      {children}
-    </motion.span>
+    <>
+      <motion.span style={{ opacity, color, display: 'inline-block' }}>
+        {children}
+      </motion.span>
+      {' '}
+    </>
   );
 }
 
